@@ -1,62 +1,66 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+## Apuntes
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+### 02 - Como se renderizan los componentes de Livewire
 
-## About Laravel
+### Crear un componente 
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Para crear un componente de livewire utiliza el siguiente comando 
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- php artisan make:livewire ShowPosts
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Esto creara dos archivos, la clase ShowPosts dentro de app/Http/Livewire y la vista show-post dentro de resources/views/livewire/show-posts.blade.php
 
-## Learning Laravel
+Para crear componentes dentro de una carpeta deberás utilizar el comando 
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- php artisan make:livewire Nav/ShowPosts
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-## Laravel Sponsors
+### Utilizar un componente 
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+Para utilizar un componente utiliza 
 
-### Premium Partners
+- livewire('show-posts',['title'=>'Este es un título de prueba']) 
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
+Lo anterior renderizara  el componente y en caso de esperar un parámetro, en este caso title, deberás pasárselo dentro de un arreglo llave-valor, en caso de que tu componente se encuentre de una carpeta deberás especificar la ruta por ejemplo
 
-## Contributing
+ - @livewire('nav.show-posts')
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+ ### Uso de un componente como controlador
 
-## Code of Conduct
+ En caso de que sea necesario que utilices un componente que se mostrara como todo el contenido, deberás especificarlo 
+ como el parámetro de una ruta 
+ 
+- Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard',ShowPosts::class)->name('dashboard');
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
-## Security Vulnerabilities
+ Este renderizara su contenido utilizando a views/layouts/app.blade.php, en caso de que
+ necesites que renderize usando otro layout, deberás especificarlo haciendo uso de la función layout dentro de la clase
+ del componente por ejemplo 
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+ - return view('livewire.show-posts')
+    ->layout('layouts.base');
 
-## License
+### La función mount
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+La función mount, permite recibir parámetros para después asignarlos a propiedades publicas del componente, por ejemplo 
+
+-  public function mount($name)
+    {
+        $this->name = $name;
+    }
+
+Que estaría asignando el valor recibido, ya sea por url o dentro de la directiva de blade @livewire()
+
+El siguiente es un ejemplo de una ruta que utiliza la función de un componente como Controlador, misma que recibe el parametro name
+el cual es usado por la función mount
+
+- Route::get('prueba/{name}',ShowPosts::class);
+
+Para que esto funcione, la clase ShowPosts deberá tener definida como publica la propiedad name como se muestra a continuación
+
+-  public $name;
+
+De esta forma la ruta, recibe la variable name, y la función mount, al recibirla la asigna a su propiedad publica $name,
+misma que sera renderizada dentro de la vista del componente usando los {{ }} de la siguiente forma 
+
+- {{ $name }}
