@@ -64,3 +64,14 @@ De esta forma la ruta, recibe la variable name, y la función mount, al recibirl
 misma que sera renderizada dentro de la vista del componente usando los {{ }} de la siguiente forma 
 
 - {{ $name }}
+
+
+### 03 - Vinculación de datos 
+
+Para vincular el valor de un input con el valor de la clase del componente se utiliza 
+
+- wire:model="search"
+
+En donde search es el nombre de la variable de la clase del componente, esto permite que cada ves que dicha variable es  modificada
+el componente recargue el contenido de su vista utilizando la función render, es importante entender esto ya que este comportamiento 
+podría jugar en nuestro favor o no dependiendo el caso de uso 
